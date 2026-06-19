@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoTrack AI - Sustainability Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        eco: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            200: '#bbf7d0',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            800: '#166534',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-50 text-slate-800 dark:bg-slate-900 dark:text-slate-100 min-h-screen flex flex-col md:flex-row">
+
+    <aside class="w-full md:w-64 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md border-b md:border-b-0 md:border-r border-slate-200 dark:border-slate-800 p-4 flex flex-col justify-between z-30 md:sticky md:top-0 md:h-screen">
+        <div>
+            <div class="flex items-center gap-3 px-2 py-4">
+                <div class="w-10 h-10 bg-eco-500 rounded-xl flex items-center justify-center text-white text-xl shadow-lg shadow-eco-500/30">
+                    <i class="fa-solid fa-leaf animate-pulse"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-none tracking-tight">EcoTrack <span class="text-eco-500">AI</span></h1>
+                    <span class="text-xs text-slate-400 font-medium">Sustainability Engine</span>
+                </div>
+            </div>
+
+            <div class="mt-4 p-3 bg-slate-100 dark:bg-slate-800/60 rounded-xl mb-6">
+                <div class="flex justify-between items-center text-xs mb-1">
+                    <span class="font-semibold text-eco-600 dark:text-eco-400" id="sidebar-user-level">Level 1 Eco-Earther</span>
+                    <span id="sidebar-xp-display" class="font-bold">0 / 100 XP</span>
+                </div>
+                <div class="w-full bg-slate-200 dark:bg-slate-700 h-2 rounded-full overflow-hidden">
+                    <div id="sidebar-xp-bar" class="bg-gradient-to-r from-eco-500 to-emerald-400 h-full transition-all duration-500" style="width: 0%"></div>
+                </div>
+            </div>
+
+            <nav class="space-y-1">
+                <button onclick="switchSection('dashboard')" data-nav="dashboard" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-eco-600 bg-eco-50 dark:bg-eco-950/30 dark:text-eco-400 font-semibold">
+                    <i class="fa-solid fa-chart-pie text-base"></i> Dashboard
+                </button>
+                <button onclick="switchSection('calculator')" data-nav="calculator" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50">
+                    <i class="fa-solid fa-calculator text-base"></i> Carbon Calculator
+                </button>
+                <button onclick="switchSection('ai-assistant')" data-nav="ai-assistant" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50">
+                    <i class="fa-solid fa-robot text-base"></i> AI Eco Assistant
+                </button>
+                <button onclick="switchSection('logs')" data-nav="logs" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50">
+                    <i class="fa-solid fa-list-check text-base"></i> Track Logs
+                </button>
+                <button onclick="switchSection('vision-mock')" data-nav="vision-mock" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50">
+                    <i class="fa-solid fa-camera text-base"></i> AI Object Vision
+                </button>
+                <button onclick="switchSection('configuration')" data-nav="configuration" class="nav-btn w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800/50">
+                    <i class="fa-solid fa-sliders text-base"></i> Settings & Goals
+                </button>
+            </nav>
+        </div>
+
+        <div class="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4 flex items-center justify-between">
+            <button onclick="toggleDarkMode()" class="w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:scale-105 transition-all" title="Toggle Mode">
+                <i class="fa-solid fa-moon dark:hidden"></i>
+                <i class="fa-solid fa-sun hidden dark:block"></i>
+            </button>
+            <div class="flex items-center gap-2">
+                <i class="fa-solid fa-fire text-amber-500 animate-bounce"></i>
+                <span class="text-xs font-bold" id="streak-counter-sidebar">0 Day Streak</span>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 p-4 md:p-8 overflow-y-auto max-w-7xl mx-auto w-full space-y-8">
+        
+        <header class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-4 border-b border-slate-200 dark:border-slate-800">
+            <div>
+                <h2 class="text-2xl font-bold tracking-tight" id="welcome-title">Welcome back, Eco Guardian!</h2>
+                <p class="text-sm text-slate-500 dark:text-slate-400">Track and optimize your carbon footprint metrics instantly.</p>
+            </div>
+            <div class="flex gap-2 items-center w-full sm:w-auto">
+                <button onclick="exportToCSV()" class="flex-1 sm:flex-none px-3 py-2 bg-slate-200 dark:bg-slate-800 text-xs font-medium rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+                <button onclick="triggerPrintReport()" class="flex-1 sm:flex-none px-3 py-2 bg-slate-200 dark:bg-slate-800 text-xs font-medium rounded-lg hover:bg-slate-300 dark:hover:bg-slate-700 transition-all flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-file-pdf"></i> Printable Summary
+                </button>
+            </div>
+        </header>
+
+        <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2 pointer-events-none"></div>
+
+        <section id="dashboard" class="app-section active space-y-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group shadow-sm">
+                    <div class="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-10 text-6xl text-eco-600 transition-transform group-hover:scale-110">
+                        <i class="fa-solid fa-star"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block">Eco Index Score</span>
+                    <h3 class="text-3xl font-extrabold mt-2 text-eco-600 dark:text-eco-400" id="kpi-eco-score">85/100</h3>
+                    <p class="text-xs text-slate-400 mt-1">Based on global target rules</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group shadow-sm">
+                    <div class="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-10 text-6xl text-rose-500">
+                        <i class="fa-solid fa-cloud"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block">Carbon Footprint</span>
+                    <h3 class="text-3xl font-extrabold mt-2" id="kpi-carbon">0.00 <span class="text-sm font-medium">kg CO₂e</span></h3>
+                    <p class="text-xs text-slate-400 mt-1">Calculated today</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group shadow-sm">
+                    <div class="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-10 text-6xl text-amber-500">
+                        <i class="fa-solid fa-bolt"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block">Energy Usage</span>
+                    <h3 class="text-3xl font-extrabold mt-2" id="kpi-energy">0.0 <span class="text-sm font-medium">kWh</span></h3>
+                    <p class="text-xs text-slate-400 mt-1">Electricity consumption</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group shadow-sm">
+                    <div class="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-10 text-6xl text-blue-500">
+                        <i class="fa-solid fa-droplet"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block">Water Consumed</span>
+                    <h3 class="text-3xl font-extrabold mt-2" id="kpi-water">0.0 <span class="text-sm font-medium">L</span></h3>
+                    <p class="text-xs text-slate-400 mt-1">Hydration & utilities tracking</p>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl relative overflow-hidden group shadow-sm">
+                    <div class="absolute right-0 bottom-0 translate-x-3 translate-y-3 opacity-10 text-6xl text-stone-500">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </div>
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400 block">Waste Logged</span>
+                    <h3 class="text-3xl font-extrabold mt-2" id="kpi-waste">0.0 <span class="text-sm font-medium">kg</span></h3>
+                    <p class="text-xs text-slate-400 mt-1">Landfill disposal rate</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="glass-panel p-5 rounded-2xl shadow-sm">
+                    <h4 class="font-bold text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-line text-eco-500"></i> Carbon Footprint Analytics History
+                    </h4>
+                    <div class="relative h-64 w-full">
+                        <canvas id="trendChart"></canvas>
+                    </div>
+                </div>
+                <div class="glass-panel p-5 rounded-2xl shadow-sm">
+                    <h4 class="font-bold text-base mb-4 flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-eco-500"></i> Consumption Category Breakdown
+                    </h4>
+                    <div class="relative h-64 w-full flex justify-center">
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="glass-panel p-6 rounded-2xl shadow-sm border-l-4 border-l-amber-500 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-amber-100 dark:bg-amber-950/40 rounded-xl flex items-center justify-center text-2xl text-amber-600 dark:text-amber-400">
+                        <i class="fa-solid fa-fire"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs uppercase font-bold tracking-wider text-slate-400">Streak Status</h4>
+                        <p class="text-xl font-extrabold text-slate-800 dark:text-white" id="dashboard-streak-txt">0 Days Active</p>
+                        <span class="text-xs text-slate-400">Log activities daily to build a streak!</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl shadow-sm border-l-4 border-l-eco-500 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-eco-100 dark:bg-eco-950/40 rounded-xl flex items-center justify-center text-2xl text-eco-600 dark:text-eco-400">
+                        <i class="fa-solid fa-award"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-xs uppercase font-bold tracking-wider text-slate-400">Total Eco Points Available</h4>
+                        <p class="text-xl font-extrabold text-slate-800 dark:text-white" id="dashboard-points-txt">0 GP / XP</p>
+                        <span class="text-xs text-slate-400">Earned via sustainable choices</span>
+                    </div>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl shadow-sm border-l-4 border-l-blue-500 flex items-center gap-4">
+                    <div class="w-14 h-14 bg-blue-100 dark:bg-blue-950/40 rounded-xl flex items-center justify-center text-2xl text-blue-600 dark:text-blue-400">
+                        <i class="fa-solid fa-medal"></i>
+                    </div>
+                    <div class="flex-1">
+                        <h4 class="text-xs uppercase font-bold tracking-wider text-slate-400">Next Badge Milestone</h4>
+                        <p class="text-sm font-bold text-slate-800 dark:text-white" id="dashboard-badge-milestone">Carbon Zero Novice</p>
+                        <div class="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden mt-1">
+                            <div class="bg-blue-500 h-full w-2/3" id="badge-milestone-progress"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel p-6 rounded-2xl shadow-sm">
+                <h4 class="font-bold text-base mb-4 flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> Earned Achievement Milestones
+                </h4>
+                <div id="achievements-grid" class="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+                    </div>
+            </div>
+        </section>
+
+        <section id="calculator" class="app-section space-y-6">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <form id="calc-form" onsubmit="calculateFootprintEvent(event)" class="lg:col-span-2 glass-panel p-6 rounded-2xl shadow-sm space-y-6">
+                    <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+                        <h3 class="text-lg font-bold text-slate-800 dark:text-white">Real-Time Carbon Impact Calculator</h3>
+                        <p class="text-xs text-slate-400">Input your routine consumption habits below to preview real-time calculations.</p>
+                    </div>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div class="space-y-1">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Transportation (Vehicle distance)</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm"><i class="fa-solid fa-car"></i></span>
+                                <input type="number" step="any" min="0" id="calc-trans" value="0" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-2.5 pl-9 rounded-xl focus:outline-none focus:border-eco-500 text-sm" placeholder="Distance in km">
+                            </div>
+                            <span class="text-[10px] text-slate-400 block">Avg. Kilometers driven per day</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Electricity Usage</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm"><i class="fa-solid fa-bolt"></i></span>
+                                <input type="number" step="any" min="0" id="calc-electric" value="0" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-2.5 pl-9 rounded-xl focus:outline-none focus:border-eco-500 text-sm" placeholder="Power usage in kWh">
+                            </div>
+                            <span class="text-[10px] text-slate-400 block">Kilowatt-Hours consumed per day</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Water Utilities</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm"><i class="fa-solid fa-droplet"></i></span>
+                                <input type="number" step="any" min="0" id="calc-water" value="0" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-2.5 pl-9 rounded-xl focus:outline-none focus:border-eco-500 text-sm" placeholder="Volume in Liters">
+                            </div>
+                            <span class="text-[10px] text-slate-400 block">Total Liters used per day</span>
+                        </div>
+
+                        <div class="space-y-1">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Waste Produced</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm"><i class="fa-solid fa-trash-can"></i></span>
+                                <input type="number" step="any" min="0" id="calc-waste" value="0" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-2.5 pl-9 rounded-xl focus:outline-none focus:border-eco-500 text-sm" placeholder="Weight in kilograms">
+                            </div>
+                            <span class="text-[10px] text-slate-400 block">Mass of unsorted trash generated daily</span>
+                        </div>
+
+                        <div class="space-y-1 sm:col-span-2">
+                            <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Primary Diet Profile Weighting</label>
+                            <div class="relative">
+                                <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-sm"><i class="fa-solid fa-utensils"></i></span>
+                                <select id="calc-diet" class="w-full bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 p-2.5 pl-9 rounded-xl focus:outline-none focus:border-eco-500 text-sm appearance-none">
+                                    <option value="vegan">Strict Plant-Based / Vegan (Minimal Impact)</option>
+                                    <option value="vegetarian">Vegetarian (Low Impact)</option>
+                                    <option value="balanced" selected>Balanced Mixed Diet (Average Impact)</option>
+                                    <option value="heavy-meat">High-Meat Intensive Diet (High Impact)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="flex gap-3 pt-2">
+                        <button type="submit" class="flex-1 bg-eco-600 hover:bg-eco-700 text-white font-medium py-2.5 px-4 rounded-xl shadow-lg shadow-eco-600/20 transition-all text-sm flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-rotate"></i> Compute & Commit to Logs
+                        </button>
+                        <button type="button" onclick="resetCalculatorForm()" class="px-4 py-2.5 bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 text-sm rounded-xl transition-all">
+                            Clear
+                        </button>
+                    </div>
+                </form>
+
+                <div class="glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-6">
+                    <div>
+                        <h4 class="text-sm font-bold uppercase tracking-wider text-slate-400">Active Formulation Result</h4>
+                        <div class="mt-4 p-4 bg-slate-100 dark:bg-slate-800/60 rounded-xl text-center">
+                            <span class="text-xs block text-slate-400 font-semibold mb-1">Total Daily Emissions Coefficient</span>
+                            <span class="text-4xl font-black text-rose-500" id="live-calc-total">0.00</span>
+                            <span class="text-sm font-bold text-rose-500 block mt-1">kg CO₂e / Day</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-3">
+                        <h5 class="text-xs font-bold uppercase tracking-wider text-slate-400">Automated Smart Insights</h5>
+                        <div id="calculator-insights-box" class="text-xs space-y-2 text-slate-600 dark:text-slate-300 max-h-48 overflow-y-auto pr-1">
+                            <p class="italic text-slate-400">Fill in the metrics on the left side to compile instant ecological impact feedback analysis updates.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="ai-assistant" class="app-section space-y-6">
+            <div class="glass-panel rounded-2xl shadow-sm overflow-hidden flex flex-col h-[550px]">
+                <div class="p-4 border-b border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-950/20 flex items-center justify-between">
+                    <div class="flex items-center gap-3">
+                        <div class="w-9 h-9 bg-eco-500 rounded-xl flex items-center justify-center text-white text-base">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div>
+                            <h4 class="font-bold text-sm">EcoTrack AI Conversational Agent</h4>
+                            <span class="text-[10px] text-eco-500 flex items-center gap-1 font-semibold">
+                                <span class="w-1.5 h-1.5 rounded-full bg-eco-500 animate-ping"></span> Live Client-Side Context LLM Engine
+                            </span>
+                        </div>
+                    </div>
+                    <button onclick="clearChatHistory()" class="text-xs text-slate-400 hover:text-rose-500 transition-colors" title="Clear Chat Logs">
+                        <i class="fa-solid fa-trash-can"></i> Clear History
+                    </button>
+                </div>
+
+                <div id="chat-messages-container" class="flex-1 p-4 overflow-y-auto space-y-4 bg-slate-50/50 dark:bg-slate-900/10">
+                    <div class="flex gap-3 max-w-[85%]">
+                        <div class="w-7 h-7 rounded-lg bg-eco-500 flex items-center justify-center text-white text-xs shrink-0">
+                            <i class="fa-solid fa-robot"></i>
+                        </div>
+                        <div class="bg-white dark:bg-slate-800 p-3 rounded-2xl rounded-tl-none text-xs shadow-sm border border-slate-100 dark:border-slate-800/80">
+                            Hello! I am your real-time EcoTrack Assistant. Ask me anything about environmental preservation, carbon offsets, or how to reduce consumption metrics!
+                        </div>
+                    </div>
+                </div>
+
+                <div id="ai-typing-indicator" class="hidden px-4 py-2 flex items-center gap-2 text-xs text-slate-400 bg-slate-50/50 dark:bg-slate-900/10">
+                    <i class="fa-solid fa-circle-notch animate-spin text-eco-500"></i> EcoTrack AI is processing recommended steps...
+                </div>
+
+                <div class="p-2 bg-slate-100/60 dark:bg-slate-950/40 border-t border-slate-200 dark:border-slate-800 flex gap-2 overflow-x-auto whitespace-nowrap">
+                    <button onclick="sendQuickChatPrompt('How can I optimize household energy consumption?')" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-eco-50 dark:hover:bg-eco-950/30 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 transition-all">
+                        💡 Energy Savings Tips
+                    </button>
+                    <button onclick="sendQuickChatPrompt('What is the carbon impact difference between vegan and meat diets?')" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-eco-50 dark:hover:bg-eco-950/30 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 transition-all">
+                        🥗 Diet Footprint Comparison
+                    </button>
+                    <button onclick="sendQuickChatPrompt('Give me a 3-step action plan to reduce plastic waste today.')" class="px-2.5 py-1 bg-white dark:bg-slate-800 hover:bg-eco-50 dark:hover:bg-eco-950/30 text-[11px] rounded-lg border border-slate-200 dark:border-slate-700 transition-all">
+                        ♻️ Reduce Plastic Plan
+                    </button>
+                </div>
+
+                <form id="chat-input-form" onsubmit="handleChatSubmit(event)" class="p-3 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950 flex gap-2">
+                    <input type="text" id="chat-user-msg" autocomplete="off" placeholder="Ask a sustainability question..." class="flex-1 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2 rounded-xl focus:outline-none focus:border-eco-500 text-xs">
+                    <button type="submit" class="px-4 bg-eco-600 hover:bg-eco-700 text-white rounded-xl transition-all flex items-center justify-center">
+                        <i class="fa-solid fa-paper-plane text-xs"></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <section id="logs" class="app-section space-y-6">
+            <div class="glass-panel p-4 rounded-2xl shadow-sm flex flex-col md:flex-row items-center gap-3 justify-between">
+                <div class="relative w-full md:w-72">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400 text-xs"><i class="fa-solid fa-magnifying-glass"></i></span>
+                    <input type="text" id="log-search-input" oninput="renderLogsTable()" class="w-full bg-slate-100 dark:bg-slate-800/80 text-xs border border-slate-200 dark:border-slate-700 p-2 pl-9 rounded-xl focus:outline-none" placeholder="Search entries description...">
+                </div>
+
+                <div class="flex items-center gap-2 w-full md:w-auto overflow-x-auto">
+                    <select id="log-filter-diet" onchange="renderLogsTable()" class="bg-slate-100 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 p-2 rounded-xl focus:outline-none">
+                        <option value="all">All Diets Models</option>
+                        <option value="vegan">Vegan</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="balanced">Balanced</option>
+                        <option value="heavy-meat">Heavy Meat</option>
+                    </select>
+
+                    <select id="log-sort-order" onchange="renderLogsTable()" class="bg-slate-100 dark:bg-slate-800 text-xs border border-slate-200 dark:border-slate-700 p-2 rounded-xl focus:outline-none">
+                        <option value="newest">Newest Entries First</option>
+                        <option value="oldest">Oldest Entries First</option>
+                        <option value="highest-carbon">Highest Carbon Impact</option>
+                    </select>
+
+                    <button onclick="openAddManualLogModal()" class="bg-eco-600 hover:bg-eco-700 text-white font-medium px-3 py-2 text-xs rounded-xl transition-all flex items-center gap-1 shrink-0">
+                        <i class="fa-solid fa-plus"></i> Add Manual Entry
+                    </button>
+                </div>
+            </div>
+
+            <div class="glass-panel rounded-2xl shadow-sm overflow-hidden">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse text-xs">
+                        <thead>
+                            <tr class="bg-slate-100 dark:bg-slate-950/40 text-slate-400 uppercase font-bold tracking-wider border-b border-slate-200 dark:border-slate-800">
+                                <th class="p-4">Timestamp Date</th>
+                                <th class="p-4">Log Notes Info</th>
+                                <th class="p-4">Travel (km)</th>
+                                <th class="p-4">Power (kWh)</th>
+                                <th class="p-4">Water (L)</th>
+                                <th class="p-4">Waste (kg)</th>
+                                <th class="p-4">Diet Model</th>
+                                <th class="p-4 text-rose-500 font-bold">Carbon Net</th>
+                                <th class="p-4 text-center">Control Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logs-table-body" class="divide-y divide-slate-200 dark:divide-slate-800">
+                            </tbody>
+                    </table>
+                </div>
+                <div id="logs-empty-state" class="hidden p-12 text-center space-y-2">
+                    <div class="text-4xl text-slate-300"><i class="fa-solid fa-folder-open"></i></div>
+                    <p class="text-sm font-semibold text-slate-400">No Historical Carbon Activity Records Found</p>
+                    <p class="text-xs text-slate-400 max-w-xs mx-auto">Use the calculator form or add manual entries above to populate historical telemetry track logs.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="vision-mock" class="app-section space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="glass-panel p-6 rounded-2xl shadow-sm space-y-4 flex flex-col justify-between">
+                    <div class="space-y-1">
+                        <h3 class="text-lg font-bold">AI Computer Vision Material Classifier</h3>
+                        <p class="text-xs text-slate-400">Simulate advanced neural network scanning of objects or item waste piles to discover recyclability options.</p>
+                    </div>
+
+                    <div class="border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-eco-500 dark:hover:border-eco-500 rounded-2xl p-6 text-center cursor-pointer relative bg-slate-100/30 dark:bg-slate-900/20 group transition-all">
+                        <input type="file" id="vision-file-input" accept="image/*" onchange="previewVisionImage(event)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10">
+                        <div class="space-y-2 pointer-events-none">
+                            <div class="text-3xl text-slate-400 group-hover:scale-110 group-hover:text-eco-500 transition-transform">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                            <p class="text-xs font-semibold">Click or drag image file here to analyze</p>
+                            <p class="text-[10px] text-slate-400">Supports PNG, JPG, JPEG up to 5MB size metrics</p>
+                        </div>
+                    </div>
+
+                    <div id="vision-preview-container" class="hidden bg-slate-100 dark:bg-slate-800 rounded-xl p-3 flex flex-col items-center justify-center gap-2">
+                        <img id="vision-img-element" src="#" alt="Upload Snapshot Preview" class="max-h-40 object-contain rounded-lg shadow-sm">
+                        <button onclick="removeVisionImage()" class="text-[11px] text-rose-500 font-semibold hover:underline"><i class="fa-solid fa-xmark"></i> Remove Selected Image</button>
+                    </div>
+
+                    <button type="button" onclick="runMockVisionAnalysis()" class="w-full bg-eco-600 hover:bg-eco-700 text-white font-medium py-2 px-4 rounded-xl text-xs transition-all shadow-md flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i> Process & Analyze Core Material Composition
+                    </button>
+                </div>
+
+                <div class="glass-panel p-6 rounded-2xl shadow-sm flex flex-col justify-between space-y-4">
+                    <div>
+                        <h4 class="text-xs uppercase font-bold tracking-wider text-slate-400">Neural Net Classifier Pipeline Response</h4>
+                        <div id="vision-status-box" class="mt-4 p-8 border border-slate-200 dark:border-slate-800 rounded-xl text-center text-slate-400 text-xs italic">
+                            Awaiting image classification ingestion stream pipeline execution...
+                        </div>
+                    </div>
+
+                    <div id="vision-results-box" class="hidden space-y-3">
+                        <div class="flex justify-between items-center bg-eco-50 dark:bg-eco-950/20 p-3 rounded-xl border border-eco-200 dark:border-eco-900/40">
+                            <div>
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">Identified Object Tag</span>
+                                <span class="text-sm font-bold text-eco-600 dark:text-eco-400" id="vision-detected-label">Aluminum Soda Beverage Can</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-[10px] uppercase font-bold text-slate-400 block">AI Confidence Score</span>
+                                <span class="text-xs font-bold px-2 py-0.5 bg-eco-200 dark:bg-eco-900 rounded-full text-eco-700 dark:text-eco-300" id="vision-confidence-txt">98.4% Match</span>
+                            </div>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            <span class="text-[11px] font-bold text-slate-400 block uppercase">Recycling Strategy & Direct Optimization Rules:</span>
+                            <div id="vision-recommendation-tips" class="text-xs space-y-1 text-slate-600 dark:text-slate-300 bg-slate-100/60 dark:bg-slate-800/40 p-3 rounded-xl border border-slate-200 dark:border-slate-700">
+                                </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="configuration" class="app-section space-y-6">
+            <form id="settings-form" onsubmit="saveProfileSettingsEvent(event)" class="glass-panel p-6 rounded-2xl shadow-sm space-y-6">
+                <div class="border-b border-slate-200 dark:border-slate-800 pb-3">
+                    <h3 class="text-lg font-bold">User Identity Profile & Target Sustainable Goals</h3>
+                    <p class="text-xs text-slate-400">Configure global app personalization defaults. Data is retained directly inside local storage boundaries.</p>
+                </div>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Display Nickname / Alias</label>
+                        <input type="text" id="profile-name" value="Eco Guardian" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl focus:outline-none focus:border-eco-500 text-sm">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Age Bracket Cohort</label>
+                        <select id="profile-age-group" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl focus:outline-none focus:border-eco-500 text-sm">
+                            <option value="youth">Youth (Under 18 Years)</option>
+                            <option value="adult-young" selected>Young Adult (18-34 Years)</option>
+                            <option value="adult-mid">Adult (35-54 Years)</option>
+                            <option value="senior">Senior Steward (55+ Years)</option>
+                        </select>
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Geographic Region Location</label>
+                        <input type="text" id="profile-location" value="Global Citizen" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl focus:outline-none focus:border-eco-500 text-sm" placeholder="City, Country">
+                    </div>
+
+                    <div class="space-y-1">
+                        <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider">Core Environmental Directive Focus</label>
+                        <select id="profile-goal" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl focus:outline-none focus:border-eco-500 text-sm">
+                            <option value="net-zero" selected>Absolute Emissions Minimization (Net Zero Carbon)</option>
+                            <option value="zero-waste">Landfill Abatement (Zero Waste Circular Lifecycle)</option>
+                            <option value="resource-conservation">Utility Resource Savings (Water & Power Conservation)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="flex gap-3 pt-2">
+                    <button type="submit" class="bg-eco-600 hover:bg-eco-700 text-white font-medium py-2 px-5 rounded-xl text-xs shadow-md transition-all">
+                        Save System Settings Profile
+                    </button>
+                    <button type="button" onclick="clearAllDataWipeReset()" class="bg-rose-500/10 hover:bg-rose-500 text-rose-500 hover:text-white font-medium py-2 px-4 rounded-xl text-xs transition-all ml-auto">
+                        Factory Reset All Records & Local Storage
+                    </button>
+                </div>
+            </form>
+        </section>
+    </main>
+
+    <div id="manual-log-modal" class="fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-slate-900 rounded-2xl w-full max-w-lg shadow-2xl border border-slate-200 dark:border-slate-800 p-6 space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-200 dark:border-slate-800 pb-3">
+                <h4 class="font-bold text-base" id="modal-title-context">Insert Historical Environmental Track Entry</h4>
+                <button onclick="closeAddManualLogModal()" class="text-slate-400 hover:text-slate-600 dark:hover:text-white text-lg"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+
+            <form id="modal-log-form" onsubmit="handleManualLogFormSubmit(event)" class="space-y-4 text-xs">
+                <input type="hidden" id="modal-edit-id" value="">
+
+                <div class="space-y-1">
+                    <label class="block font-semibold text-slate-400 uppercase tracking-wider">Log Activity Description Note</label>
+                    <input type="text" id="modal-log-desc" required class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-xs focus:outline-none" placeholder="e.g., Weekly grocery run commute tracking log details">
+                </div>
+
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="block font-semibold text-slate-400 uppercase tracking-wider">Vehicle Distance (km)</label>
+                        <input type="number" step="any" min="0" id="modal-log-trans" value="0" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-xs focus:outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block font-semibold text-slate-400 uppercase tracking-wider">Power Drank (kWh)</label>
+                        <input type="number" step="any" min="0" id="modal-log-electric" value="0" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-xs focus:outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block font-semibold text-slate-400 uppercase tracking-wider">Water Used (Liters)</label>
+                        <input type="number" step="any" min="0" id="modal-log-water" value="0" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-xs focus:outline-none">
+                    </div>
+                    <div class="space-y-1">
+                        <label class="block font-semibold text-slate-400 uppercase tracking-wider">Waste Pitched (kg)</label>
+                        <input type="number" step="any" min="0" id="modal-log-waste" value="0" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-xs focus:outline-none">
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="block font-semibold text-slate-400 uppercase tracking-wider">Dietary Regime Multiplier Profile</label>
+                    <select id="modal-log-diet" class="w-full bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-2.5 rounded-xl text-xs focus:outline-none">
+                        <option value="vegan">Strict Plant-Based / Vegan</option>
+                        <option value="vegetarian">Vegetarian</option>
+                        <option value="balanced" selected>Balanced Mixed Diet</option>
+                        <option value="heavy-meat">High-Meat Intensive Diet</option>
+                    </select>
+                </div>
+
+                <div class="flex gap-2 pt-2 justify-end">
+                    <button type="button" onclick="closeAddManualLogModal()" class="px-4 py-2 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 font-medium rounded-xl text-xs transition-all">Cancel</button>
+                    <button type="submit" class="px-4 py-2 bg-eco-600 hover:bg-eco-700 text-white font-medium rounded-xl text-xs transition-all shadow-md">Commit Log Transaction</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
