@@ -1,5 +1,7 @@
 # EcoTrack AI
 
+Live Demo: https://github.com/OmWalunj/EcoTrack-AI/
+
 ## Chosen Vertical
 
 Sustainability and Environmental Awareness
